@@ -1,0 +1,31 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-03-10T12:44:30Z'
+  groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 4466158e9e6d470381fa620def198a3a
+      template: 'Veeam Agent Windows'
+      name: 'Veeam Agent Windows'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 89f681eb0abf4b0a9994b4f476583890
+          name: 'Veeam Agent - jobs'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Veeam Agent,,,,^(190|191),,skip]'
+          delay: 10m
+          trends: '0'
+          value_type: LOG
+          triggers:
+            - uuid: 4f88c64420a74a8c9cf1e978764474b2
+              expression: 'logseverity(/Veeam Agent Windows/eventlog[Veeam Agent,,,,^(190|191),,skip],#1)<>1'
+              name: 'Veeam Agent - job failed'
+              priority: HIGH
+              manual_close: 'YES'
+            - uuid: 8dea9809800b44bdafa55f383cfb0b6a
+              expression: 'nodata(/Veeam Agent Windows/eventlog[Veeam Agent,,,,^(190|191),,skip],2d)=1'
+              name: 'Veeam Agent - no logs received for 2 days'
+              priority: HIGH
+              manual_close: 'YES'
