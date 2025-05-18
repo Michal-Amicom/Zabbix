@@ -1,0 +1,133 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: f53a52f6522e4785a1c249a7da9f8b65
+      name: Amicom
+  templates:
+    - uuid: 15f2c3b72eb14d998d52ae0ebfe3a54a
+      template: 'Amicom - Windows Logs'
+      name: 'Amicom - Windows Logs'
+      groups:
+        - name: Amicom
+      items:
+        - uuid: df21fcb2f9604c6eaae092efdfa031cc
+          name: 'Windows Application Logs'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Application,,"Warning|Error|Failure",,,,]'
+          value_type: LOG
+          trends: '0'
+          timeout: 30s
+          tags:
+            - tag: Author
+              value: Amicom
+        - uuid: d9f35b6e7f95417fab8593b14319b5aa
+          name: 'Windows Security Logs'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Security,,"Failure Audit",,,,]'
+          value_type: LOG
+          trends: '0'
+          timeout: 30s
+          tags:
+            - tag: Author
+              value: Amicom
+        - uuid: df866b741c574c1aac96f67ab777365a
+          name: 'Windows System Logs'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[System,,"Critical|Warning|Error|Failure",,,,]'
+          value_type: LOG
+          trends: '0'
+          timeout: 30s
+          tags:
+            - tag: Author
+              value: Amicom
+      tags:
+        - tag: Author
+          value: Amicom
+      dashboards:
+        - uuid: 45b095c4ca784ca082b916623ed66752
+          name: 'Logs Dashboard'
+          pages:
+            - widgets:
+                - type: itemhistory
+                  name: 'Application Log'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: ITEM
+                      name: columns.0.itemid
+                      value:
+                        host: 'Amicom - Windows Logs'
+                        key: 'eventlog[Application,,"Warning|Error|Failure",,,,]'
+                    - type: STRING
+                      name: columns.0.name
+                      value: 'Windows Application Logs'
+                    - type: INTEGER
+                      name: layout
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: TGCVR
+                    - type: INTEGER
+                      name: show_column_header
+                      value: '1'
+                    - type: INTEGER
+                      name: show_lines
+                      value: '100'
+                    - type: INTEGER
+                      name: show_timestamp
+                      value: '1'
+                - type: itemhistory
+                  name: 'Security Log'
+                  'y': '6'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: ITEM
+                      name: columns.0.itemid
+                      value:
+                        host: 'Amicom - Windows Logs'
+                        key: 'eventlog[Security,,"Failure Audit",,,,]'
+                    - type: STRING
+                      name: columns.0.name
+                      value: 'Windows Security Logs'
+                    - type: STRING
+                      name: reference
+                      value: BPXJR
+                    - type: INTEGER
+                      name: show_column_header
+                      value: '1'
+                    - type: INTEGER
+                      name: show_lines
+                      value: '100'
+                    - type: INTEGER
+                      name: show_timestamp
+                      value: '1'
+                - type: itemhistory
+                  name: 'System Log'
+                  'y': '12'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: ITEM
+                      name: columns.0.itemid
+                      value:
+                        host: 'Amicom - Windows Logs'
+                        key: 'eventlog[System,,"Critical|Warning|Error|Failure",,,,]'
+                    - type: INTEGER
+                      name: columns.0.local_time
+                      value: '1'
+                    - type: STRING
+                      name: columns.0.name
+                      value: 'Windows System Logs'
+                    - type: STRING
+                      name: reference
+                      value: YKHUP
+                    - type: INTEGER
+                      name: show_column_header
+                      value: '1'
+                    - type: INTEGER
+                      name: show_lines
+                      value: '100'
+                    - type: INTEGER
+                      name: show_timestamp
+                      value: '1'

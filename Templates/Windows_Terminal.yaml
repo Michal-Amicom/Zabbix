@@ -1,0 +1,25 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: f53a52f6522e4785a1c249a7da9f8b65
+      name: Amicom
+  templates:
+    - uuid: c9ce1ddab89f44dab2cdc7c27a7efa63
+      template: 'Amicom - Windows Terminal Server'
+      name: 'Amicom - Windows Terminal Server'
+      groups:
+        - name: Amicom
+      items:
+        - uuid: 793b1963a24640faa75c9b600d42a850
+          name: 'Grace period'
+          type: ZABBIX_ACTIVE
+          key: 'wmi.get[\\root\CIMV2\TerminalServices,SELECT GetGracePeriodDays FROM Win32_TerminalServiceSetting]'
+          delay: 10m
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: Author
+              value: Amicom
+      tags:
+        - tag: Author
+          value: Amicom
