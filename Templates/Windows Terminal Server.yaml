@@ -1,0 +1,59 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: f53a52f6522e4785a1c249a7da9f8b65
+      name: Amicom
+  templates:
+    - uuid: c9ce1ddab89f44dab2cdc7c27a7efa63
+      template: 'Amicom - Windows Terminal Server'
+      name: 'Amicom - Windows Terminal Server'
+      groups:
+        - name: Amicom
+      items:
+        - uuid: 2365ae26197445e6ab7206ca6c5c14c3
+          name: 'Grace period - days left'
+          type: DEPENDENT
+          key: grace.period
+          delay: '0'
+          units: days
+          master_item:
+            key: 'system.run[wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TerminalServiceSetting WHERE (__CLASS !="") CALL GetGracePeriodDays,wait]'
+          tags:
+            - tag: Author
+              value: Amicom
+          triggers:
+            - uuid: c090e4cc708b4a17a22e8e8e66429b92
+              expression: 'last(/Amicom - Windows Terminal Server/grace.period,#1)<30'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Amicom - Windows Terminal Server/grace.period,#1)>30'
+              name: 'Grace period ending soon'
+              priority: HIGH
+              tags:
+                - tag: Author
+                  value: Amicom
+        - uuid: a9c5ecf9478a47239a3234e9ce027b48
+          name: 'Grace period script'
+          type: ZABBIX_ACTIVE
+          key: 'system.run[wmic /namespace:\\root\CIMV2\TerminalServices PATH Win32_TerminalServiceSetting WHERE (__CLASS !="") CALL GetGracePeriodDays,wait]'
+          trends: '0'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'DaysLeft = ([0-9]+)'
+                - \1
+          tags:
+            - tag: Author
+              value: Amicom
+        - uuid: 793b1963a24640faa75c9b600d42a850
+          name: 'Grace period'
+          type: ZABBIX_ACTIVE
+          key: 'wmi.get[root\CIMV2\TerminalServices,CALL GetGracePeriodDays]'
+          value_type: TEXT
+          trends: '0'
+          status: DISABLED
+          tags:
+            - tag: Author
+              value: Amicom
+      tags:
+        - tag: Author
+          value: Amicom
