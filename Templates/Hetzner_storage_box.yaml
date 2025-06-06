@@ -139,3 +139,13 @@ zabbix_export:
           value: Amicom
       macros:
         - macro: '{$BOX.ID}'
+  triggers:
+    - uuid: c892f1dfbf514281a48846e1956d1d27
+      expression: '(100*last(/Amicom - Storage Box/storagebox.data.usage)/last(/Amicom - Storage Box/storagebox.data.total))<30'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: '(100*last(/Amicom - Storage Box/storagebox.data.usage)/last(/Amicom - Storage Box/storagebox.data.total))>30'
+      name: '% free'
+      priority: HIGH
+      tags:
+        - tag: Author
+          value: Amicom
