@@ -21,6 +21,23 @@ zabbix_export:
           username: '#ws+K3ufXP42'
           password: s6Cq9N3GVpt9Sxy
           url: 'https://robot-ws.your-server.de/storagebox/{$BOX.ID}'
+        - uuid: 9be3672680e44ea8831c4f2f2a63078d
+          name: storagebox.data.free
+          type: CALCULATED
+          key: storagebox.data.free
+          delay: 10m
+          value_type: FLOAT
+          units: '%'
+          params: '(last(//storagebox.data.usage)/last(//storagebox.data.total))*100'
+          triggers:
+            - uuid: c892f1dfbf514281a48846e1956d1d27
+              expression: 'last(/Amicom - Storage Box/storagebox.data.free)<20'
+              name: '% free'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Author
+                  value: Amicom
         - uuid: cdd757b9b1404ee3a293076f9119b926
           name: storagebox.data.total
           type: DEPENDENT
@@ -139,13 +156,3 @@ zabbix_export:
           value: Amicom
       macros:
         - macro: '{$BOX.ID}'
-  triggers:
-    - uuid: c892f1dfbf514281a48846e1956d1d27
-      expression: '(100*last(/Amicom - Storage Box/storagebox.data.usage)/last(/Amicom - Storage Box/storagebox.data.total))<30'
-      recovery_mode: RECOVERY_EXPRESSION
-      recovery_expression: '(100*last(/Amicom - Storage Box/storagebox.data.usage)/last(/Amicom - Storage Box/storagebox.data.total))>30'
-      name: '% free'
-      priority: HIGH
-      tags:
-        - tag: Author
-          value: Amicom
