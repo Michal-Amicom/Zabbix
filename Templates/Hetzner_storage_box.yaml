@@ -1,0 +1,141 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: f53a52f6522e4785a1c249a7da9f8b65
+      name: Amicom
+  templates:
+    - uuid: 3004f91a132e4578a96ba54a478113e9
+      template: 'Amicom - Storage Box'
+      name: 'Amicom - Storage Box'
+      groups:
+        - name: Amicom
+      items:
+        - uuid: 8baf380254d342e5817fee542c769c63
+          name: 'Storage box API query'
+          type: HTTP_AGENT
+          key: robot
+          delay: 1d
+          value_type: TEXT
+          trends: '0'
+          authtype: BASIC
+          username: '#ws+K3ufXP42'
+          password: s6Cq9N3GVpt9Sxy
+          url: 'https://robot-ws.your-server.de/storagebox/{$BOX.ID}'
+        - uuid: cdd757b9b1404ee3a293076f9119b926
+          name: storagebox.data.total
+          type: DEPENDENT
+          key: storagebox.data.total
+          delay: '0'
+          trends: '0'
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..disk_quota
+            - type: REGEX
+              parameters:
+                - \d+
+                - \0
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          master_item:
+            key: robot
+        - uuid: 8c6438478234440da2c05daa949dc5d9
+          name: storagebox.data.usage
+          type: DEPENDENT
+          key: storagebox.data.usage
+          delay: '0'
+          trends: '0'
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..disk_usage
+            - type: REGEX
+              parameters:
+                - \d+
+                - \0
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          master_item:
+            key: robot
+        - uuid: bc636896ca234765b89937f69715d252
+          name: storagebox.data.usage_data
+          type: DEPENDENT
+          key: storagebox.data.usage_data
+          delay: '0'
+          trends: '0'
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..disk_usage_data
+            - type: REGEX
+              parameters:
+                - \d+
+                - \0
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          master_item:
+            key: robot
+        - uuid: 09abbdacdd4040deb57f8da26e5d158e
+          name: storagebox.data.usage_snapshots
+          type: DEPENDENT
+          key: storagebox.data.usage_snapshots
+          delay: '0'
+          trends: '0'
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..disk_usage_snapshots
+            - type: REGEX
+              parameters:
+                - \d+
+                - \0
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          master_item:
+            key: robot
+        - uuid: 28c6e35e35ef432d9e0250d53a31e2eb
+          name: storagebox.host_system
+          type: DEPENDENT
+          key: storagebox.host_system
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..host_system
+            - type: TRIM
+              parameters:
+                - '[]"'
+          master_item:
+            key: robot
+        - uuid: a210aeb82b8f41dc83d0e17c2fe372b4
+          name: storagebox.id
+          type: DEPENDENT
+          key: storagebox.id
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $..id
+            - type: REGEX
+              parameters:
+                - \d+
+                - \0
+          master_item:
+            key: robot
+      tags:
+        - tag: Author
+          value: Amicom
+      macros:
+        - macro: '{$BOX.ID}'
