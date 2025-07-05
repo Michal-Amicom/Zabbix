@@ -14,13 +14,46 @@ zabbix_export:
           name: 'Storage box API query'
           type: HTTP_AGENT
           key: robot
-          delay: 1d
+          delay: 1h
           value_type: TEXT
           trends: '0'
+          url: 'https://api.hetzner.com/v1/storage_boxes'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$API.TOKEN}'
+          tags:
+            - tag: Author
+              value: Amicom
+        - uuid: 7bfe4e54a936433bb9b5d2a0f29eaacb
+          name: 'Storage box API query - backup'
+          type: HTTP_AGENT
+          key: robot-backup
+          delay: 1h
+          value_type: TEXT
+          trends: '0'
+          status: DISABLED
           authtype: BASIC
           username: '#ws+K3ufXP42'
           password: s6Cq9N3GVpt9Sxy
           url: 'https://robot-ws.your-server.de/storagebox/{$BOX.ID}'
+          tags:
+            - tag: Author
+              value: Amicom
+        - uuid: 21e6ab1e203241dd9a961aa13c3d819e
+          name: 'Storage box API query NEW'
+          type: HTTP_AGENT
+          key: robotnew
+          delay: 1h
+          value_type: TEXT
+          trends: '0'
+          status: DISABLED
+          url: 'https://api.hetzner.com/v1/storage_boxes'
+          headers:
+            - name: Baerer
+              value: '{$BOX.Token}'
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: 9be3672680e44ea8831c4f2f2a63078d
           name: storagebox.data.free
           type: CALCULATED
@@ -28,11 +61,14 @@ zabbix_export:
           delay: 10m
           value_type: FLOAT
           units: '%'
-          params: '(last(//storagebox.data.usage)/last(//storagebox.data.total))*100'
+          params: '100-((last(//storagebox.data.usage)/last(//storagebox.data.total))*100)'
+          tags:
+            - tag: Author
+              value: Amicom
           triggers:
             - uuid: c892f1dfbf514281a48846e1956d1d27
               expression: 'last(/Amicom - Storage Box/storagebox.data.free)<20'
-              name: '% free'
+              name: 'Storage box % space free'
               priority: HIGH
               manual_close: 'YES'
               tags:
@@ -48,16 +84,16 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..disk_quota
+                - $..storage_box_type.size
             - type: REGEX
               parameters:
                 - \d+
                 - \0
-            - type: MULTIPLIER
-              parameters:
-                - '1048576'
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: 8c6438478234440da2c05daa949dc5d9
           name: storagebox.data.usage
           type: DEPENDENT
@@ -68,16 +104,16 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..disk_usage
+                - $..stats.size
             - type: REGEX
               parameters:
                 - \d+
                 - \0
-            - type: MULTIPLIER
-              parameters:
-                - '1048576'
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: bc636896ca234765b89937f69715d252
           name: storagebox.data.usage_data
           type: DEPENDENT
@@ -88,16 +124,16 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..disk_usage_data
+                - $..stats.size_data
             - type: REGEX
               parameters:
                 - \d+
                 - \0
-            - type: MULTIPLIER
-              parameters:
-                - '1048576'
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: 09abbdacdd4040deb57f8da26e5d158e
           name: storagebox.data.usage_snapshots
           type: DEPENDENT
@@ -108,16 +144,16 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..disk_usage_snapshots
+                - $..stats.size_snapshots
             - type: REGEX
               parameters:
                 - \d+
                 - \0
-            - type: MULTIPLIER
-              parameters:
-                - '1048576'
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: 28c6e35e35ef432d9e0250d53a31e2eb
           name: storagebox.host_system
           type: DEPENDENT
@@ -128,12 +164,15 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..host_system
+                - $.storage_boxes..system
             - type: TRIM
               parameters:
                 - '[]"'
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
         - uuid: a210aeb82b8f41dc83d0e17c2fe372b4
           name: storagebox.id
           type: DEPENDENT
@@ -144,15 +183,65 @@ zabbix_export:
           preprocessing:
             - type: JSONPATH
               parameters:
-                - $..id
+                - $.storage_boxes..storage_box_type.size
             - type: REGEX
               parameters:
                 - \d+
                 - \0
           master_item:
             key: robot
+          tags:
+            - tag: Author
+              value: Amicom
       tags:
         - tag: Author
           value: Amicom
       macros:
+        - macro: '{$API.TOKEN}'
         - macro: '{$BOX.ID}'
+      dashboards:
+        - uuid: 3832954af6b34094a6e1efafcef3147d
+          name: Storage
+          pages:
+            - widgets:
+                - type: svggraph
+                  name: Storage
+                  width: '71'
+                  height: '12'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF465C
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: storagebox.data.usage
+                    - type: STRING
+                      name: ds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: storagebox.data.usage_data
+                    - type: STRING
+                      name: ds.2.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: ds.2.items.0
+                      value: storagebox.data.usage_snapshots
+                    - type: INTEGER
+                      name: ds.3.aggregate_function
+                      value: '3'
+                    - type: INTEGER
+                      name: ds.3.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.3.color
+                      value: 524BBC
+                    - type: STRING
+                      name: ds.3.items.0
+                      value: storagebox.data.free
+                    - type: INTEGER
+                      name: ds.3.type
+                      value: '3'
+                    - type: STRING
+                      name: reference
+                      value: LPRPC
